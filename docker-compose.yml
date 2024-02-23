@@ -1,0 +1,55 @@
+version: "2.21.0" # versão do docker compose utilizada para rodar esse arquivo sem problemas.
+
+services:
+  mysql:
+    build:
+      context: .
+      dockerfile: ./docker/mysql.dockerfile
+    image: alemPedal/mysql:V1
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: alemPedal
+    volumes:
+      - D:\FACULDADE\4_semestre\Software Product - Analysis & Specification\PROJETO:/mysql
+    restart: always
+    ports:
+      - "3306"
+    networks:
+      - faculdade
+
+  app:
+    build:
+      dockerfile: ./docker/app.dockerfile
+      context: .
+    image: alemPedal/python:V1
+    container_name: python
+    volumes:
+      - D:\FACULDADE\4_semestre\Software Product - Analysis & Specification\PROJETO:/python
+    restart: always
+    ports:
+      - "8000"
+    networks:
+      - faculdade
+    depends_on:
+      - mysql
+
+  web:
+    build:
+      dockerfile: ./docker/nginx.dockerfile
+      context: .
+    image: alemPedal/nginx:V1
+    container_name: nginx
+    volumes:
+      - D:\FACULDADE\4_semestre\Software Product - Analysis & Specification\PROJETO:/nginx
+    restart: always
+    ports:
+      - "80:80" # Na nuvem a porta tem que ser a 80:80.
+    networks:
+      - faculdade
+    depends_on:
+      - app
+
+networks:
+  faculdade:
+    driver: bridge
